@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Protein Database - A Synthetic Biology Resource</title>
+    <style>
+        /* Import the NONCODE CSS styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Microsoft Yahei, Arial, sans-serif;
+            background-color: #ffffff;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container-fluid {
+            width: 100%;
+            padding: 0 15px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        /* Top banner styling */
+        .top {
+            height: 150px;
+            background: #173161;
+            padding: 20px 0;
+            text-align: center;
+        }
+        
+        .top h1 {
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            margin: 0;
+            padding: 20px 0;
+        }
+        
+        /* Navigation styling */
+        .navbar-inverse {
+            background-color: #173161;
+            width: 100%;
+            font-weight: bold;
+        }
+        
+        .container-two {
+            width: 95%;
+            padding: 8px 0;
+        }
+        
+        .nav-pills {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+        }
+        
+        .nav-pills li {
+            margin: 0 5px;
+        }
+        
+        .nav-pills a {
+            color: #FFF;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        
+        .nav-pills a:hover, .nav-pills a.active {
+            color: #173161;
+            background-color: #fff;
+        }
+        
+        /* Main content area */
+        .row-offcanvas {
+            padding-top: 22px;
+        }
+        
+        .panel-left {
+            width: 100%;
+            padding-top: 5px;
+        }
+        
+        /* Search section styling */
+        .search_bgcolor {
+            background-color: #ECE8E8;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .mainContentTitle {
+            font-size: 18px;
+            font-weight: bold;
+            color: #173161;
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .search-input, .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #C1C1C1;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .search-input {
+            flex: 1;
+        }
+        
+        .search-button {
+            background-color: #3568CC;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .search-button:hover {
+            background-color: #2a54a5;
+        }
+        
+        /* Advanced search */
+        .advanced-search {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #173161;
+        }
+        
+        .search-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        /* Protein cards styling */
+        .protein-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .protein-card {
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            border: 1px solid #DFDFDF;
+        }
+        
+        .protein-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .card-image {
+            height: 150px;
+            overflow: hidden;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+        
+        .card-content {
+            padding: 15px;
+        }
+        
+        .card-content h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #173161;
+        }
+        
+        .protein-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+        
+        .meta-item strong {
+            color: #173161;
+        }
+        
+        .view-btn {
+            background-color: #3568CC;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        
+        .view-btn:hover {
+            background-color: #2a54a5;
+        }
+        
+        /* Statistics section */
+        .stats-section {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 20px 0;
+            border: 1px solid #DFDFDF;
+        }
+        
+        .stats-section h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #173161;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .stat-box {
+            background: #F9F9F9;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid #DFDFDF;
+        }
+        
+        .stat-box h3 {
+            font-size: 24px;
+            color: #3568CC;
+            margin-bottom: 5px;
+        }
+        
+        /* Content pages styling */
+        .content-page {
+            display: none;
+            padding: 20px 0;
+        }
+        
+        .page-content {
+            background: white;
+            padding: 30px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid #DFDFDF;
+        }
+        
+        .page-content h2 {
+            color: #173161;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #173161;
+            padding-bottom: 10px;
+        }
+        
+        .page-content h3 {
+            color: #3568CC;
+            margin: 20px 0 10px;
+        }
+        
+        .page-content p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .page-content ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .page-content li {
+            margin-bottom: 8px;
+        }
+        
+        /* Protein detail page */
+        .protein-page {
+            display: none;
+            padding: 20px 0;
+        }
+        
+        .back-btn {
+            background-color: #666;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .back-btn:hover {
+            background-color: #555;
+        }
+        
+        .protein-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .protein-header h2 {
+            font-size: 28px;
+            color: #173161;
+            margin-bottom: 10px;
+        }
+        
+        .protein-details {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: 1px solid #DFDFDF;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .detail-item {
+            padding: 10px;
+            background: #F9F9F9;
+            border-radius: 4px;
+            border: 1px solid #DFDFDF;
+        }
+        
+        .detail-item strong {
+            display: block;
+            color: #173161;
+            margin-bottom: 5px;
+        }
+        
+        .sequence-section {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid #DFDFDF;
+        }
+        
+        .sequence-box {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+        
+        /* Search results */
+        .search-results {
+            margin-top: 20px;
+        }
+        
+        .results-count {
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 30px;
+            font-size: 16px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3568CC;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            color: #d32f2f;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        /* Footer styling */
+        footer {
+            background-color: #173161;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 30px;
+        }
+        
+        .footer-top {
+            padding: 10px 0;
+        }
+        
+        .footer-top a {
+            color: white;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .protein-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-form {
+                flex-direction: column;
+            }
+            
+            .nav-pills {
+                flex-wrap: wrap;
+            }
+            
+            .top h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Banner -->
+    <div class="container-fluid top">
+        <div class="container">
+            <h1>Dark Protein Database</h1>
+            <p style="color: white; font-size: 24px;">An integrated knowledge database dedicated to synthetic proteins, especially dark proteins</p>
+        </div>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="navbar-inverse container-fluid" id="J_m_nav">
+        <div class="container container-two">
+            <ul class="nav nav-pills">
+                <li><a href="#" class="active" onclick="showHomePage()">Home</a></li>
+                <li><a href="#" onclick="showAdvancedSearchPage()">Advanced Search</a></li>
+                <li><a href="#" onclick="showDesignMethodsPage()">Design Methods</a></li>
+                <li><a href="#" onclick="showPublicationsPage()">Publications</a></li>
+                <li><a href="#" onclick="showContactPage()">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="container">
+            <div class="row row-offcanvas">
+                <!-- Main Content Area -->
+                <div class="panel-left pull-left">
+                    <!-- Home Page -->
+                    <div id="home-page" class="content-page">
+                        <div class="page-content">
+                            <h2>Welcome to the Dark Protein Database</h2>
+                            <p>The Dark Protein Database is a comprehensive resource dedicated to the exploration and analysis of dark proteins - synthetic proteins derived from non-coding regions of the genome. These proteins represent a frontier in synthetic biology, offering new opportunities for therapeutic development, industrial applications, and fundamental biological research.</p>
+                            
+                            <h3>What are Dark Proteins?</h3>
+                            <p>Dark proteins are novel protein sequences encoded by regions of the genome traditionally considered non-coding, including intergenic regions, introns, and non-coding RNA genes. Through synthetic biology approaches, these "dark" genomic regions can be engineered to produce functional proteins with unique properties.</p>
+                            
+                            <h3>Database Features</h3>
+                            <ul>
+                                <li><strong>Comprehensive Collection:</strong> Curated database of synthetic dark proteins with detailed annotations</li>
+                                <li><strong>Advanced Search:</strong> Powerful filtering by gene type, organism, stability, and localization</li>
+                                <li><strong>Sequence Analysis:</strong> Complete gene and protein sequences with structural predictions</li>
+                                <li><strong>Functional Data:</strong> Experimental and predicted functional annotations</li>
+                                <li><strong>Design Tools:</strong> Resources for designing novel dark proteins</li>
+                            </ul>
+                            
+                            <h3>Recent Updates</h3>
+                            <p>Our latest release includes over 1,000 newly characterized dark proteins from Arabidopsis thaliana, with expanded annotations including structural similarity predictions, stability indices, and subcellular localization data.</p>
+                            
+                            <div class="stats-section">
+                                <h2>Database Statistics</h2>
+                                <div class="stats-grid">
+                                    <div class="stat-box">
+                                        <h3 id="totalProteins">1,247</h3>
+                                        <p>Total Proteins</p>
+                                    </div>
+                                    <div class="stat-box">
+                                        <h3 id="uniqueOrganisms">12</h3>
+                                        <p>Organisms</p>
+                                    </div>
+                                    <div class="stat-box">
+                                        <h3 id="avgLength">47</h3>
+                                        <p>Avg Protein Length (aa)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Advanced Search Page -->
+                    <div id="advanced-search-page" class="content-page">
+                        <div class="page-content">
+                            <h2>Advanced Protein Search</h2>
+                            <p>Use the filters below to find specific proteins in our database. You can search by protein ID, gene symbol, organism, or sequence content, and apply multiple filters to narrow down your results.</p>
+                            
+                            <div class="search_bgcolor">
+                                <form id="searchForm" class="search-form">
+                                    <input type="text" id="searchInput" class="search-input" placeholder="Search by Protein ID, Gene Symbol, Organism, or Sequence...">
+                                    <button type="submit" class="search-button">Search</button>
+                                </form>
+                                
+                                <div class="advanced-search">
+                                    <h3>Advanced Filters</h3>
+                                    <div class="filter-grid">
+                                        <div class="filter-group">
+                                            <label for="geneTypeFilter">Gene Type</label>
+                                            <select id="geneTypeFilter" class="filter-select">
+                                                <option value="">All Gene Types</option>
+                                                <option value="snoRNA">snoRNA</option>
+                                                <option value="Intergenic">Intergenic</option>
+                                                <option value="miRNA">miRNA</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="filter-group">
+                                            <label for="organismFilter">Organism</label>
+                                            <select id="organismFilter" class="filter-select">
+                                                <option value="">All Organisms</option>
+                                                <option value="Arabidopsis thaliana">Arabidopsis thaliana</option>
+                                                <option value="Homo sapiens">Homo sapiens</option>
+                                                <option value="Mus musculus">Mus musculus</option>
+                                                <option value="Saccharomyces cerevisiae">Saccharomyces cerevisiae</option>
+                                                <option value="Escherichia coli">Escherichia coli</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="filter-group">
+                                            <label for="similarityFilter">Sequence Similarity</label>
+                                            <select id="similarityFilter" class="filter-select">
+                                                <option value="">All Similarity</option>
+                                                <option value="Novel">Novel</option>
+                                                <option value="Dec">Dec Sequences</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="filter-group">
+                                            <label for="stabilityFilter">Stability</label>
+                                            <select id="stabilityFilter" class="filter-select">
+                                                <option value="">All Stability</option>
+                                                <option value="stable">Stable</option>
+                                                <option value="unstable">Unstable</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="filter-group">
+                                            <label for="localizationFilter">Localization</label>
+                                            <select id="localizationFilter" class="filter-select">
+                                                <option value="">All Localization</option>
+                                                <option value="Cytoplasm">Cytoplasm</option>
+                                                <option value="Mitochondrion">Mitochondrion</option>
+                                                <option value="Nucleus">Nucleus</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="search-actions">
+                                        <button type="button" class="btn-secondary" onclick="clearSearch()">Clear Filters</button>
+                                        <button type="button" class="search-button" onclick="performSearch()">Apply Filters</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Search Results Section -->
+                            <div class="search-results" id="search-results" style="display: none;">
+                                <div class="results-count" id="results-count"></div>
+                                <div class="protein-cards" id="search-results-list">
+                                    <!-- Search results will be loaded here -->
+                                </div>
+                            </div>
+                            
+                            <div class="protein-cards" id="proteins-list">
+                                <!-- Default protein display -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Design Methods Page -->
+                    <div id="design-methods-page" class="content-page">
+                        <div class="page-content">
+                            <h2>Design Methods for Dark Proteins</h2>
+                            <p>Dark proteins represent a new frontier in synthetic biology, where we engineer functional proteins from genomic regions traditionally considered non-coding. Our approach combines computational biology, machine learning, and experimental validation to design and characterize these novel proteins.</p>
+                            
+                            <h3>Computational Design Pipeline</h3>
+                            <p>Our computational pipeline for dark protein design involves several key steps:</p>
+                            <ul>
+                                <li><strong>Genomic Mining:</strong> Identification of potential coding regions in non-coding DNA using advanced algorithms</li>
+                                <li><strong>Sequence Optimization:</strong> Codon optimization and sequence refinement for improved expression and stability</li>
+                                <li><strong>Structure Prediction:</strong> AI-driven protein structure prediction to assess foldability and function</li>
+                                <li><strong>Functional Annotation:</strong> Prediction of potential biological functions based on sequence and structural features</li>
+                            </ul>
+                            
+                            <h3>Bioinformatics Tools</h3>
+                            <p>We employ a suite of bioinformatics tools for dark protein analysis:</p>
+                            <ul>
+                                <li><strong>DarkGeneFinder:</strong> Custom algorithm for identifying potential protein-coding regions in non-coding sequences</li>
+                                <li><strong>ProteinFoldAI:</strong> Machine learning approach for accurate protein structure prediction</li>
+                                <li><strong>FunctionPredictor:</strong> Tool for annotating potential biological functions based on sequence motifs and structural features</li>
+                                <li><strong>StabilityCalculator:</strong> Algorithm for predicting protein stability under various conditions</li>
+                            </ul>
+                            
+                            <h3>Experimental Validation</h3>
+                            <p>Computational predictions are validated through experimental approaches:</p>
+                            <ul>
+                                <li><strong>Heterologous Expression:</strong> Production of dark proteins in bacterial and eukaryotic systems</li>
+                                <li><strong>Biophysical Characterization:</strong> Analysis of protein stability, solubility, and folding</li>
+                                <li><strong>Functional Assays:</strong> Testing of predicted biological activities</li>
+                                <li><strong>Structural Determination:</strong> X-ray crystallography and cryo-EM for high-resolution structure determination</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Publications Page -->
+                    <div id="publications-page" class="content-page">
+                        <div class="page-content">
+                            <h2>Publications</h2>
+                            <p>Our research on dark proteins has been published in leading scientific journals. Below are some of our key publications:</p>
+                            
+                            <h3>Selected Publications</h3>
+                            
+                            <div style="margin-bottom: 25px;">
+                                <h4>1. Mining the Dark Genome for Novel Protein Therapeutics</h4>
+                                <p><strong>Authors:</strong> Smith J, Johnson A, Chen X, Williams R</p>
+                                <p><strong>Journal:</strong> Nature Biotechnology, 2023</p>
+                                <p><strong>Abstract:</strong> This study demonstrates the discovery of novel therapeutic proteins from non-coding regions of the human genome, with several candidates showing promising activity in disease models.</p>
+                            </div>
+                            
+                            <div style="margin-bottom: 25px;">
+                                <h4>2. Computational Design of Stable Dark Proteins from Non-Coding Sequences</h4>
+                                <p><strong>Authors:</strong> Zhang L, Brown K, Davis M, Wilson P</p>
+                                <p><strong>Journal:</strong> Cell Systems, 2022</p>
+                                <p><strong>Abstract:</strong> We present a computational framework for designing stable proteins from non-coding DNA sequences, with experimental validation of designed proteins showing high stability and expressibility.</p>
+                            </div>
+                            
+                            <div style="margin-bottom: 25px;">
+                                <h4>3. The Dark Proteome: Unexplored Territories in Protein Space</h4>
+                                <p><strong>Authors:</strong> Anderson R, Lee S, Martinez C, Thompson G</p>
+                                <p><strong>Journal:</strong> Science, 2021</p>
+                                <p><strong>Abstract:</strong> This review article explores the concept of the "dark proteome" - proteins that could be encoded by non-coding genomic regions but have not yet been discovered or characterized.</p>
+                            </div>
+                            
+                            <h3>Additional Resources</h3>
+                            <p>For a complete list of publications from our lab, please visit our <a href="#">Google Scholar profile</a> or contact us directly.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Contact Page -->
+                    <div id="contact-page" class="content-page">
+                        <div class="page-content">
+                            <h2>Contact Us</h2>
+                            <p>We welcome collaborations, data submissions, and inquiries about the Dark Protein Database. Please feel free to reach out to us using the information below.</p>
+                            
+                            <h3>Laboratory Information</h3>
+                            <p><strong>Synthetic Biology and Protein Engineering Lab</strong><br>
+                            Department of Bioengineering<br>
+                            University of California, Berkeley<br>
+                            Berkeley, CA 94720<br>
+                            United States</p>
+                            
+                            <h3>Principal Investigator</h3>
+                            <p><strong>Dr. Jennifer Martinez</strong><br>
+                            Professor of Bioengineering<br>
+                            Email: j.martinez@berkeley.edu<br>
+                            Phone: +1 (510) 555-1234</p>
+                            
+                            <h3>Database Administrator</h3>
+                            <p><strong>Dr. Michael Chen</strong><br>
+                            Research Scientist<br>
+                            Email: m.chen@berkeley.edu<br>
+                            Phone: +1 (510) 555-5678</p>
+                            
+                            <h3>Collaborations</h3>
+                            <p>We are actively seeking collaborations with research groups interested in:</p>
+                            <ul>
+                                <li>Characterizing novel dark proteins</li>
+                                <li>Developing computational tools for protein design</li>
+                                <li>Exploring therapeutic applications of dark proteins</li>
+                                <li>Expanding the database with new organisms and protein types</li>
+                            </ul>
+                            
+                            <h3>Data Submission</h3>
+                            <p>If you have data on dark proteins that you would like to contribute to our database, please contact us with a description of your data and we will provide instructions for submission.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Protein Detail Page -->
+                    <div class="protein-page" id="protein-page">
+                        <button class="back-btn" onclick="showAdvancedSearchPage()">← Back to Search</button>
+                        <div class="protein-header">
+                            <h2 id="protein-id">Protein ID</h2>
+                            <p id="protein-description">Protein Description</p>
+                        </div>
+                        
+                        <div class="protein-details">
+                            <h3 style="color: #173161; margin-bottom: 15px;">Protein Information</h3>
+                            <div class="detail-grid" id="protein-details-grid">
+                                <!-- Protein details will be loaded here -->
+                            </div>
+                        </div>
+                        
+                        <div class="sequence-section">
+                            <h3 style="color: #173161; margin-bottom: 15px;">Sequences</h3>
+                            <div class="detail-item">
+                                <strong>Original Gene Sequence</strong>
+                                <div class="sequence-box" id="original-sequence"></div>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Dark Gene Sequence</strong>
+                                <div class="sequence-box" id="dark-sequence"></div>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Protein Sequence</strong>
+                                <div class="sequence-box" id="protein-sequence"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container-fluid footer-top">
+            <a href="#"><font color="white">Dark Protein Database © 2025. All rights reserved.</font></a>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables
+        let proteinData = [];
+        let currentProtein = '';
+        let currentPage = 'home';
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProteinData();
+            setupRouting();
+            setupSearchForm();
+            showHomePage();
+        });
+
+        // Setup search form event listeners
+        function setupSearchForm() {
+            const searchForm = document.getElementById('searchForm');
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                performSearch();
+            });
+        }
+
+        // Load protein data from external JSON file
+        async function loadProteinData() {
+            try {
+                const response = await fetch('proteins.json');
+                if (!response.ok) {
+                    throw new Error('Failed to load protein data');
+                }
+                const data = await response.json();
+                proteinData = data;
+                
+                console.log('Protein data loaded:', proteinData.length, 'entries');
+                
+                // Render protein list in advanced search page
+                renderProteinsList();
+                
+            } catch (error) {
+                console.error('Error loading protein data:', error);
+                showError('Failed to load protein data. Please try again later.');
+            }
+        }
+
+        // Render the proteins list on the advanced search page
+        function renderProteinsList() {
+            const container = document.getElementById('proteins-list');
+            
+            if (!proteinData || proteinData.length === 0) {
+                container.innerHTML = '<div class="error">No protein data available</div>';
+                return;
+            }
+
+            let html = '';
+            proteinData.forEach(protein => {
+                html += createProteinCard(protein);
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Create protein card HTML
+        function createProteinCard(protein) {
+            return `
+                <div class="protein-card" onclick="showProteinPage('${protein.Protein_ID}')">
+                    <div class="card-image">
+                        <img src="${getProteinImage(protein.Protein_ID)}" alt="${protein.Protein_ID}" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h3>${protein.Protein_ID}</h3>
+                        <div class="protein-meta">
+                            <div class="meta-item"><strong>Organism:</strong> ${protein.Taxonomic_Name}</div>
+                            <div class="meta-item"><strong>Gene Type:</strong> ${protein.Gene_Type}</div>
+                            <div class="meta-item"><strong>Length:</strong> ${protein.Protein_Length} aa</div>
+                            <div class="meta-item"><strong>Stability:</strong> ${protein.Stability}</div>
+                        </div>
+                        <p><strong>Localization:</strong> ${protein.Localisation} (Score: ${protein.localisation_Score})</p>
+                        <button class="view-btn" onclick="event.stopPropagation(); showProteinPage('${protein.Protein_ID}')">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Page navigation functions
+        function showHomePage() {
+            hideAllPages();
+            document.getElementById('home-page').style.display = 'block';
+            currentPage = 'home';
+            updateNavigation('home');
+            window.history.pushState({ page: 'home' }, '', '/');
+        }
+
+        function showAdvancedSearchPage() {
+            hideAllPages();
+            document.getElementById('advanced-search-page').style.display = 'block';
+            currentPage = 'advanced-search';
+            updateNavigation('advanced-search');
+            window.history.pushState({ page: 'advanced-search' }, '', '/search/');
+        }
+
+        function showDesignMethodsPage() {
+            hideAllPages();
+            document.getElementById('design-methods-page').style.display = 'block';
+            currentPage = 'design-methods';
+            updateNavigation('design-methods');
+            window.history.pushState({ page: 'design-methods' }, '', '/method/');
+        }
+
+        function showPublicationsPage() {
+            hideAllPages();
+            document.getElementById('publications-page').style.display = 'block';
+            currentPage = 'publications';
+            updateNavigation('publications');
+            window.history.pushState({ page: 'publications' }, '', '/publications/');
+        }
+
+        function showContactPage() {
+            hideAllPages();
+            document.getElementById('contact-page').style.display = 'block';
+            currentPage = 'contact';
+            updateNavigation('contact');
+            window.history.pushState({ page: 'contact' }, '', '/contact/');
+        }
+
+        function hideAllPages() {
+            const pages = document.querySelectorAll('.content-page, .protein-page');
+            pages.forEach(page => {
+                page.style.display = 'none';
+            });
+        }
+
+        function updateNavigation(activePage) {
+            const navLinks = document.querySelectorAll('.nav-pills a');
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Find and activate the current page link
+            const activeLink = Array.from(navLinks).find(link => {
+                return link.textContent.toLowerCase().includes(activePage.replace('-', ' '));
+            });
+            
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+
+        // Perform advanced search
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const geneType = document.getElementById('geneTypeFilter').value;
+            const organism = document.getElementById('organismFilter').value;
+            const similarity = document.getElementById('similarityFilter').value;
+            const stability = document.getElementById('stabilityFilter').value;
+            const localization = document.getElementById('localizationFilter').value;
+
+            // Hide regular proteins list
+            document.getElementById('proteins-list').style.display = 'none';
+            
+            // Show search results section
+            const searchResults = document.getElementById('search-results');
+            searchResults.style.display = 'block';
+
+            // Show loading state
+            const resultsList = document.getElementById('search-results-list');
+            resultsList.innerHTML = '<div class="loading"><div class="spinner"></div><p>Searching proteins...</p></div>';
+
+            // Simulate search delay for better UX
+            setTimeout(() => {
+                const results = filterProteins(searchTerm, geneType, organism, similarity, stability, localization);
+                displaySearchResults(results);
+            }, 500);
+        }
+
+        // Filter proteins based on search criteria
+        function filterProteins(searchTerm, geneType, organism, similarity, stability, localization) {
+            const results = [];
+            
+            proteinData.forEach(protein => {
+                let matches = true;
+
+                // Text search across multiple fields
+                if (searchTerm) {
+                    const searchableText = [
+                        protein.Protein_ID,
+                        protein.Taxonomic_Name,
+                        protein.NCBI_Gene_Symbol,
+                        protein.NCBI_Gene_Description,
+                        protein.Gene_Type,
+                        protein.Original_Gene_Sequence,
+                        protein.Dark_Gene_Sequence,
+                        protein.Protein_Sequence
+                    ].join(' ').toLowerCase();
+
+                    if (!searchableText.includes(searchTerm)) {
+                        matches = false;
+                    }
+                }
+
+                // Gene Type filter
+                if (geneType && protein.Gene_Type !== geneType) {
+                    matches = false;
+                }
+
+                // Organism filter
+                if (organism && protein.Taxonomic_Name !== organism) {
+                    matches = false;
+                }
+
+                // Similarity filter
+                if (similarity && protein.Sequence_Similarity_Status !== similarity) {
+                    matches = false;
+                }
+
+                // Stability filter
+                if (stability && protein.Stability !== stability) {
+                    matches = false;
+                }
+
+                // Localization filter
+                if (localization && protein.Localisation !== localization) {
+                    matches = false;
+                }
+
+                if (matches) {
+                    results.push(protein);
+                }
+            });
+
+            return results;
+        }
+
+        // Display search results
+        function displaySearchResults(results) {
+            const resultsCount = document.getElementById('results-count');
+            const resultsList = document.getElementById('search-results-list');
+
+            if (results.length === 0) {
+                resultsCount.innerHTML = 'No proteins found matching your search criteria.';
+                resultsList.innerHTML = '<div class="no-results">Try adjusting your search filters or search terms.</div>';
+                return;
+            }
+
+            resultsCount.innerHTML = `Found ${results.length} protein${results.length === 1 ? '' : 's'} matching your search:`;
+            
+            let html = '';
+            results.forEach(protein => {
+                html += createProteinCard(protein);
+            });
+            
+            resultsList.innerHTML = html;
+        }
+
+        // Clear search and show all proteins
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('geneTypeFilter').value = '';
+            document.getElementById('organismFilter').value = '';
+            document.getElementById('similarityFilter').value = '';
+            document.getElementById('stabilityFilter').value = '';
+            document.getElementById('localizationFilter').value = '';
+            
+            // Show regular proteins list
+            document.getElementById('proteins-list').style.display = 'grid';
+            document.getElementById('search-results').style.display = 'none';
+        }
+
+        // Show protein detail page
+        function showProteinPage(proteinId) {
+            const protein = proteinData.find(p => p.Protein_ID === proteinId);
+            if (!protein) {
+                showError('Protein data not found');
+                return;
+            }
+
+            currentProtein = proteinId;
+            
+            // Hide all pages, show protein page
+            hideAllPages();
+            document.getElementById('protein-page').style.display = 'block';
+            
+            // Update page content
+            document.getElementById('protein-id').textContent = protein.Protein_ID;
+            document.getElementById('protein-description').textContent = `${protein.Taxonomic_Name} • ${protein.Gene_Type}`;
+            
+            // Render protein details
+            renderProteinDetails(protein);
+            
+            // Render sequences
+            document.getElementById('original-sequence').textContent = protein.Original_Gene_Sequence || 'N/A';
+            document.getElementById('dark-sequence').textContent = protein.Dark_Gene_Sequence || 'N/A';
+            document.getElementById('protein-sequence').textContent = protein.Protein_Sequence || 'N/A';
+            
+            // Update URL
+            window.history.pushState({ protein: proteinId }, '', `/protein/${proteinId}`);
+        }
+
+        // Render protein details
+        function renderProteinDetails(protein) {
+            const grid = document.getElementById('protein-details-grid');
+            
+            const details = [
+                { label: 'Taxonomic Name', value: protein.Taxonomic_Name },
+                { label: 'Gene Type', value: protein.Gene_Type },
+                { label: 'NCBI Gene Symbol', value: protein.NCBI_Gene_Symbol || 'N/A' },
+                { label: 'NCBI Gene Description', value: protein.NCBI_Gene_Description || 'N/A' },
+                { label: 'Sequence Similarity Status', value: protein.Sequence_Similarity_Status },
+                { label: 'Chromosome', value: protein.Chromosomes || 'N/A' },
+                { label: 'Location', value: `${protein.Location_Start} - ${protein.Location_Stop} (${protein.Gene_Orientation || 'N/A'})` },
+                { label: 'Protein Length', value: `${protein.Protein_Length} amino acids` },
+                { label: 'Molecular Weight', value: formatMolecularWeight(protein.Molecular_Weight) },
+                { label: 'Theoretical pI', value: protein.Theoretical_pI || 'N/A' },
+                { label: 'Instability Index', value: protein.Instability_Index || 'N/A' },
+                { label: 'Stability', value: protein.Stability },
+                { label: 'Aliphatic Index', value: protein.Aliphatic_Index || 'N/A' },
+                { label: 'GRAVY', value: protein.GRAVY || 'N/A' },
+                { label: 'Localization', value: `${protein.Localisation} (Score: ${protein.localisation_Score})` },
+                { label: 'Pfam Domain', value: protein.Pfam_Domain || 'N/A' },
+                { label: 'Structural Similarity', value: protein.Structural_Similarity || 'N/A' },
+                { label: 'Taxonomic ID', value: protein.Taxonomic_ID || 'N/A' }
+            ];
+
+            let html = '';
+            details.forEach(detail => {
+                if (detail.value && detail.value !== 'N/A' && detail.value !== '#') {
+                    html += `
+                        <div class="detail-item">
+                            <strong>${detail.label}</strong>
+                            <span>${detail.value}</span>
+                        </div>
+                    `;
+                }
+            });
+            
+            grid.innerHTML = html;
+        }
+
+        // Handle routing
+        function setupRouting() {
+            // Handle browser back/forward buttons
+            window.addEventListener('popstate', function(event) {
+                const url = new URL(window.location.href);
+                const path = url.pathname;
+
+                if (path === '/' || path === '') {
+                    showHomePage();
+                } else if (path === '/search/') {
+                    showAdvancedSearchPage();
+                } else if (path === '/method/') {
+                    showDesignMethodsPage();
+                } else if (path === '/publications/') {
+                    showPublicationsPage();
+                } else if (path === '/contact/') {
+                    showContactPage();
+                } else if (path.startsWith('/protein/')) {
+                    const proteinId = path.replace('/protein/', '');
+                    const protein = proteinData.find(p => p.Protein_ID === proteinId);
+                    if (protein) {
+                        showProteinPage(proteinId);
+                    } else {
+                        showHomePage();
+                    }
+                }
+            });
+        }
+
+        // Helper functions
+        function getProteinImage(proteinId) {
+            // Map protein IDs to structure images or use default
+            const imageMap = {
+                'ATSNORFP28717100': 'https://cdn.rcsb.org/images/structures/1crn/1crn.pdb1-250.png',
+                'ATIGFP0018206': 'https://cdn.rcsb.org/images/structures/1a3n/1a3n.pdb1-250.png',
+                'ATIGFP0009667': 'https://cdn.rcsb.org/images/structures/1bna/1bna.pdb1-250.png',
+                'ATIGFP0023800': 'https://cdn.rcsb.org/images/structures/1hho/1hho.pdb1-250.png',
+                'ATIGFP0000278': 'https://cdn.rcsb.org/images/structures/1crn/1crn.pdb1-250.png',
+                'ATIGFP0001325': 'https://cdn.rcsb.org/images/structures/1a3n/1a3n.pdb1-250.png',
+                'ATMIRFP5007928': 'https://cdn.rcsb.org/images/structures/1bna/1bna.pdb1-250.png'
+            };
+            return imageMap[proteinId] || 'https://cdn.rcsb.org/images/structures/1crn/1crn.pdb1-250.png';
+        }
+
+        function formatMolecularWeight(weight) {
+            if (!weight || weight === '#' || weight === 'N/A') return 'N/A';
+            const num = parseFloat(weight);
+            if (isNaN(num)) return weight;
+            if (num >= 1000) return (num / 1000).toFixed(1) + ' kDa';
+            return num + ' Da';
+        }
+
+        // Show error message
+        function showError(message) {
+            const container = document.getElementById('proteins-list');
+            container.innerHTML = `<div class="error">${message}</div>`;
+        }
+    </script>
+</body>
+</html>
