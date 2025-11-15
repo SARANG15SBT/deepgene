@@ -457,6 +457,34 @@
             padding: 30px;
         }
         
+        /* Debug panel */
+        .debug-panel {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 1000;
+            max-width: 300px;
+            display: none;
+        }
+        
+        .debug-toggle {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: #3568CC;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        
         /* Footer styling */
         footer {
             background-color: #173161;
@@ -499,6 +527,13 @@
     </style>
 </head>
 <body>
+    <!-- Debug Toggle -->
+    <button class="debug-toggle" onclick="toggleDebug()">Debug</button>
+    <div class="debug-panel" id="debug-panel">
+        <strong>Debug Information:</strong>
+        <div id="debug-info">Loading...</div>
+    </div>
+
     <!-- Top Banner -->
     <div class="container-fluid top">
         <div class="container">
@@ -511,11 +546,11 @@
     <nav class="navbar-inverse container-fluid" id="J_m_nav">
         <div class="container container-two">
             <ul class="nav nav-pills">
-                <li><a href="#" class="active" onclick="showHomePage()">Home</a></li>
-                <li><a href="#" onclick="showAdvancedSearchPage()">Advanced Search</a></li>
-                <li><a href="#" onclick="showDesignMethodsPage()">Design Methods</a></li>
-                <li><a href="#" onclick="showPublicationsPage()">Publications</a></li>
-                <li><a href="#" onclick="showContactPage()">Contact</a></li>
+                <li><a href="#" class="active" onclick="showHomePage(); return false;">Home</a></li>
+                <li><a href="#" onclick="showAdvancedSearchPage(); return false;">Advanced Search</a></li>
+                <li><a href="#" onclick="showDesignMethodsPage(); return false;">Design Methods</a></li>
+                <li><a href="#" onclick="showPublicationsPage(); return false;">Publications</a></li>
+                <li><a href="#" onclick="showContactPage(); return false;">Contact</a></li>
             </ul>
         </div>
     </nav>
@@ -813,11 +848,25 @@
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing application...');
+            updateDebugInfo('Application starting...');
             loadProteinData();
             setupRouting();
             setupSearchForm();
             showHomePage();
         });
+
+        // Debug functions
+        function toggleDebug() {
+            const panel = document.getElementById('debug-panel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function updateDebugInfo(message) {
+            const debugInfo = document.getElementById('debug-info');
+            const timestamp = new Date().toLocaleTimeString();
+            debugInfo.innerHTML = `[${timestamp}] ${message}<br>${debugInfo.innerHTML}`;
+        }
 
         // Setup search form event listeners
         function setupSearchForm() {
@@ -831,21 +880,55 @@
         // Load protein data from external JSON file
         async function loadProteinData() {
             try {
+                updateDebugInfo('Loading proteins.json...');
+                console.log('Attempting to fetch proteins.json...');
+                
                 const response = await fetch('proteins.json');
+                console.log('Response status:', response.status);
+                updateDebugInfo(`JSON response status: ${response.status}`);
+                
                 if (!response.ok) {
-                    throw new Error('Failed to load protein data');
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
+                
                 const data = await response.json();
+                console.log('JSON parsed successfully');
+                updateDebugInfo(`JSON parsed successfully, ${data.length} proteins loaded`);
+                
                 proteinData = data;
                 
                 console.log('Protein data loaded:', proteinData.length, 'entries');
+                updateDebugInfo(`Protein data loaded: ${proteinData.length} entries`);
                 
                 // Render protein list in advanced search page
                 renderProteinsList();
                 
             } catch (error) {
                 console.error('Error loading protein data:', error);
-                showError('Failed to load protein data. Please try again later.');
+                updateDebugInfo(`ERROR: ${error.message}`);
+                
+                // Create fallback sample data for testing
+                proteinData = [
+                    {
+                        "Protein_ID": "SAMPLE001",
+                        "Taxonomic_Name": "Arabidopsis thaliana",
+                        "Gene_Type": "snoRNA",
+                        "NCBI_Gene_Symbol": "AT1G01010",
+                        "Sequence_Similarity_Status": "Novel",
+                        "Protein_Length": "156",
+                        "Molecular_Weight": "17890.5",
+                        "Stability": "stable",
+                        "Localisation": "Cytoplasm",
+                        "localisation_Score": "0.85",
+                        "Original_Gene_Sequence": "ATGGCTTCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGC",
+                        "Dark_Gene_Sequence": "ATGGCTTCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGC",
+                        "Protein_Sequence": "MASP..."
+                    }
+                ];
+                
+                updateDebugInfo('Using fallback sample data');
+                renderProteinsList();
+                showError('Using sample data. Check console for JSON loading issues.');
             }
         }
 
@@ -855,6 +938,7 @@
             
             if (!proteinData || proteinData.length === 0) {
                 container.innerHTML = '<div class="error">No protein data available</div>';
+                updateDebugInfo('No protein data available to render');
                 return;
             }
 
@@ -864,12 +948,16 @@
             });
             
             container.innerHTML = html;
+            updateDebugInfo(`Rendered ${proteinData.length} protein cards`);
         }
 
         // Create protein card HTML
         function createProteinCard(protein) {
+            // Escape special characters to prevent XSS and syntax errors
+            const safeProteinId = protein.Protein_ID.replace(/'/g, "\\'");
+            
             return `
-                <div class="protein-card" onclick="showProteinPage('${protein.Protein_ID}')">
+                <div class="protein-card" onclick="showProteinPage('${safeProteinId}')">
                     <div class="card-image">
                         <img src="${getProteinImage(protein.Protein_ID)}" alt="${protein.Protein_ID}" loading="lazy">
                     </div>
@@ -882,7 +970,7 @@
                             <div class="meta-item"><strong>Stability:</strong> ${protein.Stability}</div>
                         </div>
                         <p><strong>Localization:</strong> ${protein.Localisation} (Score: ${protein.localisation_Score})</p>
-                        <button class="view-btn" onclick="event.stopPropagation(); showProteinPage('${protein.Protein_ID}')">
+                        <button class="view-btn" onclick="event.stopPropagation(); showProteinPage('${safeProteinId}')">
                             View Details
                         </button>
                     </div>
@@ -892,6 +980,7 @@
 
         // Page navigation functions
         function showHomePage() {
+            updateDebugInfo('Showing Home page');
             hideAllPages();
             document.getElementById('home-page').style.display = 'block';
             currentPage = 'home';
@@ -900,6 +989,7 @@
         }
 
         function showAdvancedSearchPage() {
+            updateDebugInfo('Showing Advanced Search page');
             hideAllPages();
             document.getElementById('advanced-search-page').style.display = 'block';
             currentPage = 'advanced-search';
@@ -908,6 +998,7 @@
         }
 
         function showDesignMethodsPage() {
+            updateDebugInfo('Showing Design Methods page');
             hideAllPages();
             document.getElementById('design-methods-page').style.display = 'block';
             currentPage = 'design-methods';
@@ -916,6 +1007,7 @@
         }
 
         function showPublicationsPage() {
+            updateDebugInfo('Showing Publications page');
             hideAllPages();
             document.getElementById('publications-page').style.display = 'block';
             currentPage = 'publications';
@@ -924,6 +1016,7 @@
         }
 
         function showContactPage() {
+            updateDebugInfo('Showing Contact page');
             hideAllPages();
             document.getElementById('contact-page').style.display = 'block';
             currentPage = 'contact';
@@ -944,18 +1037,24 @@
                 link.classList.remove('active');
             });
             
-            // Find and activate the current page link
-            const activeLink = Array.from(navLinks).find(link => {
-                return link.textContent.toLowerCase().includes(activePage.replace('-', ' '));
-            });
+            // Map page names to link indices
+            const pageMap = {
+                'home': 0,
+                'advanced-search': 1,
+                'design-methods': 2,
+                'publications': 3,
+                'contact': 4
+            };
             
-            if (activeLink) {
-                activeLink.classList.add('active');
+            // Activate the correct link
+            if (pageMap[activePage] !== undefined) {
+                navLinks[pageMap[activePage]].classList.add('active');
             }
         }
 
         // Perform advanced search
         function performSearch() {
+            updateDebugInfo('Performing search...');
             const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
             const geneType = document.getElementById('geneTypeFilter').value;
             const organism = document.getElementById('organismFilter').value;
@@ -1047,6 +1146,7 @@
             if (results.length === 0) {
                 resultsCount.innerHTML = 'No proteins found matching your search criteria.';
                 resultsList.innerHTML = '<div class="no-results">Try adjusting your search filters or search terms.</div>';
+                updateDebugInfo('Search: 0 results found');
                 return;
             }
 
@@ -1058,10 +1158,12 @@
             });
             
             resultsList.innerHTML = html;
+            updateDebugInfo(`Search: ${results.length} results found`);
         }
 
         // Clear search and show all proteins
         function clearSearch() {
+            updateDebugInfo('Clearing search filters');
             document.getElementById('searchInput').value = '';
             document.getElementById('geneTypeFilter').value = '';
             document.getElementById('organismFilter').value = '';
@@ -1076,9 +1178,11 @@
 
         // Show protein detail page
         function showProteinPage(proteinId) {
+            updateDebugInfo(`Showing protein page: ${proteinId}`);
             const protein = proteinData.find(p => p.Protein_ID === proteinId);
             if (!protein) {
                 showError('Protein data not found');
+                updateDebugInfo(`ERROR: Protein ${proteinId} not found`);
                 return;
             }
 
@@ -1148,27 +1252,29 @@
         function setupRouting() {
             // Handle browser back/forward buttons
             window.addEventListener('popstate', function(event) {
+                updateDebugInfo('Popstate event triggered');
                 const url = new URL(window.location.href);
                 const path = url.pathname;
 
-                if (path === '/' || path === '') {
+                if (path === '/' || path === '' || path === '/index.html') {
                     showHomePage();
-                } else if (path === '/search/') {
+                } else if (path.includes('/search')) {
                     showAdvancedSearchPage();
-                } else if (path === '/method/') {
+                } else if (path.includes('/method')) {
                     showDesignMethodsPage();
-                } else if (path === '/publications/') {
+                } else if (path.includes('/publications')) {
                     showPublicationsPage();
-                } else if (path === '/contact/') {
+                } else if (path.includes('/contact')) {
                     showContactPage();
-                } else if (path.startsWith('/protein/')) {
-                    const proteinId = path.replace('/protein/', '');
-                    const protein = proteinData.find(p => p.Protein_ID === proteinId);
-                    if (protein) {
+                } else if (path.includes('/protein/')) {
+                    const proteinId = path.split('/protein/')[1];
+                    if (proteinData && proteinData.find(p => p.Protein_ID === proteinId)) {
                         showProteinPage(proteinId);
                     } else {
                         showHomePage();
                     }
+                } else {
+                    showHomePage(); // Default fallback
                 }
             });
         }
