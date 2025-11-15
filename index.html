@@ -853,7 +853,7 @@
             loadProteinData();
             setupRouting();
             setupSearchForm();
-            showHomePage();
+            // Don't call showHomePage() here - let routing handle it
         });
 
         // Debug functions
@@ -985,7 +985,7 @@
             document.getElementById('home-page').style.display = 'block';
             currentPage = 'home';
             updateNavigation('home');
-            window.history.pushState({ page: 'home' }, '', '/');
+            window.history.pushState({ page: 'home' }, '', window.location.pathname);
         }
 
         function showAdvancedSearchPage() {
@@ -994,7 +994,7 @@
             document.getElementById('advanced-search-page').style.display = 'block';
             currentPage = 'advanced-search';
             updateNavigation('advanced-search');
-            window.history.pushState({ page: 'advanced-search' }, '', '/search/');
+            window.history.pushState({ page: 'advanced-search' }, '', window.location.pathname + '#search');
         }
 
         function showDesignMethodsPage() {
@@ -1003,7 +1003,7 @@
             document.getElementById('design-methods-page').style.display = 'block';
             currentPage = 'design-methods';
             updateNavigation('design-methods');
-            window.history.pushState({ page: 'design-methods' }, '', '/method/');
+            window.history.pushState({ page: 'design-methods' }, '', window.location.pathname + '#methods');
         }
 
         function showPublicationsPage() {
@@ -1012,7 +1012,7 @@
             document.getElementById('publications-page').style.display = 'block';
             currentPage = 'publications';
             updateNavigation('publications');
-            window.history.pushState({ page: 'publications' }, '', '/publications/');
+            window.history.pushState({ page: 'publications' }, '', window.location.pathname + '#publications');
         }
 
         function showContactPage() {
@@ -1021,7 +1021,38 @@
             document.getElementById('contact-page').style.display = 'block';
             currentPage = 'contact';
             updateNavigation('contact');
-            window.history.pushState({ page: 'contact' }, '', '/contact/');
+            window.history.pushState({ page: 'contact' }, '', window.location.pathname + '#contact');
+        }
+
+        function showProteinPage(proteinId) {
+            updateDebugInfo(`Showing protein page: ${proteinId}`);
+            const protein = proteinData.find(p => p.Protein_ID === proteinId);
+            if (!protein) {
+                showError('Protein data not found');
+                updateDebugInfo(`ERROR: Protein ${proteinId} not found`);
+                return;
+            }
+
+            currentProtein = proteinId;
+            
+            // Hide all pages, show protein page
+            hideAllPages();
+            document.getElementById('protein-page').style.display = 'block';
+            
+            // Update page content
+            document.getElementById('protein-id').textContent = protein.Protein_ID;
+            document.getElementById('protein-description').textContent = `${protein.Taxonomic_Name} • ${protein.Gene_Type}`;
+            
+            // Render protein details
+            renderProteinDetails(protein);
+            
+            // Render sequences
+            document.getElementById('original-sequence').textContent = protein.Original_Gene_Sequence || 'N/A';
+            document.getElementById('dark-sequence').textContent = protein.Dark_Gene_Sequence || 'N/A';
+            document.getElementById('protein-sequence').textContent = protein.Protein_Sequence || 'N/A';
+            
+            // Update URL
+            window.history.pushState({ protein: proteinId }, '', window.location.pathname + '#protein-' + proteinId);
         }
 
         function hideAllPages() {
@@ -1050,6 +1081,52 @@
             if (pageMap[activePage] !== undefined) {
                 navLinks[pageMap[activePage]].classList.add('active');
             }
+        }
+
+        // Handle routing
+        function setupRouting() {
+            // Handle direct URL access and routing
+            const handleRouting = () => {
+                const url = new URL(window.location.href);
+                const path = url.pathname;
+                const hash = url.hash;
+
+                console.log('Current path:', path);
+                console.log('Current hash:', hash);
+                updateDebugInfo(`Routing: path=${path}, hash=${hash}`);
+
+                // Handle hash-based routing (for sharing URLs)
+                if (hash) {
+                    if (hash === '#search') {
+                        showAdvancedSearchPage();
+                        return;
+                    } else if (hash === '#methods') {
+                        showDesignMethodsPage();
+                        return;
+                    } else if (hash === '#publications') {
+                        showPublicationsPage();
+                        return;
+                    } else if (hash === '#contact') {
+                        showContactPage();
+                        return;
+                    } else if (hash.startsWith('#protein-')) {
+                        const proteinId = hash.replace('#protein-', '');
+                        if (proteinData && proteinData.find(p => p.Protein_ID === proteinId)) {
+                            showProteinPage(proteinId);
+                            return;
+                        }
+                    }
+                }
+
+                // Default to home page
+                showHomePage();
+            };
+
+            // Handle initial load
+            handleRouting();
+
+            // Handle browser back/forward buttons
+            window.addEventListener('popstate', handleRouting);
         }
 
         // Perform advanced search
@@ -1176,38 +1253,6 @@
             document.getElementById('search-results').style.display = 'none';
         }
 
-        // Show protein detail page
-        function showProteinPage(proteinId) {
-            updateDebugInfo(`Showing protein page: ${proteinId}`);
-            const protein = proteinData.find(p => p.Protein_ID === proteinId);
-            if (!protein) {
-                showError('Protein data not found');
-                updateDebugInfo(`ERROR: Protein ${proteinId} not found`);
-                return;
-            }
-
-            currentProtein = proteinId;
-            
-            // Hide all pages, show protein page
-            hideAllPages();
-            document.getElementById('protein-page').style.display = 'block';
-            
-            // Update page content
-            document.getElementById('protein-id').textContent = protein.Protein_ID;
-            document.getElementById('protein-description').textContent = `${protein.Taxonomic_Name} • ${protein.Gene_Type}`;
-            
-            // Render protein details
-            renderProteinDetails(protein);
-            
-            // Render sequences
-            document.getElementById('original-sequence').textContent = protein.Original_Gene_Sequence || 'N/A';
-            document.getElementById('dark-sequence').textContent = protein.Dark_Gene_Sequence || 'N/A';
-            document.getElementById('protein-sequence').textContent = protein.Protein_Sequence || 'N/A';
-            
-            // Update URL
-            window.history.pushState({ protein: proteinId }, '', `/protein/${proteinId}`);
-        }
-
         // Render protein details
         function renderProteinDetails(protein) {
             const grid = document.getElementById('protein-details-grid');
@@ -1246,37 +1291,6 @@
             });
             
             grid.innerHTML = html;
-        }
-
-        // Handle routing
-        function setupRouting() {
-            // Handle browser back/forward buttons
-            window.addEventListener('popstate', function(event) {
-                updateDebugInfo('Popstate event triggered');
-                const url = new URL(window.location.href);
-                const path = url.pathname;
-
-                if (path === '/' || path === '' || path === '/index.html') {
-                    showHomePage();
-                } else if (path.includes('/search')) {
-                    showAdvancedSearchPage();
-                } else if (path.includes('/method')) {
-                    showDesignMethodsPage();
-                } else if (path.includes('/publications')) {
-                    showPublicationsPage();
-                } else if (path.includes('/contact')) {
-                    showContactPage();
-                } else if (path.includes('/protein/')) {
-                    const proteinId = path.split('/protein/')[1];
-                    if (proteinData && proteinData.find(p => p.Protein_ID === proteinId)) {
-                        showProteinPage(proteinId);
-                    } else {
-                        showHomePage();
-                    }
-                } else {
-                    showHomePage(); // Default fallback
-                }
-            });
         }
 
         // Helper functions
